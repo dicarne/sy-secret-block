@@ -1,11 +1,10 @@
-# Vue 3 + Typescript + Vite
+# sy-secret-block
 
-This template should help get you started developing with Vue 3 and Typescript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 功能
+一个加密的文本块，可以用于储存密码。  
+输入密码，用于加密和解锁文本块。创建块后，第一次输入的密码就是加密用的密码。  
+注意，目前全局共用同一个密码，这样设计的目的是类似超级密码，方便使用。  
+还可以自动生成14位密码。  
 
-## Recommended IDE Setup
-
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
-
-## Type Support For `.vue` Imports in TS
-
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's `.vue` type support plugin by running `Volar: Switch TS Plugin on/off` from VSCode command palette.
+## 手动安装
+下载release里的压缩包，解压，放到`工作目录/data/widgets/sy-secret-block`下。  
