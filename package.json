@@ -1,0 +1,23 @@
+{
+    "name": "sy-secret-block",
+    "version": "0.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc --noEmit && vite build && node ./widget.json.js",
+        "serve": "vite preview"
+    },
+    "dependencies": {
+        "crypto-js": "^4.1.1",
+        "lodash": "^4.17.21",
+        "siyuan_api_cache_lib": "^1.0.7",
+        "vue": "^3.2.13"
+    },
+    "devDependencies": {
+        "@types/crypto-js": "^4.0.2",
+        "@vitejs/plugin-vue": "^1.9.0",
+        "naive-ui": "^2.19.1",
+        "typescript": "^4.4.3",
+        "vite": "^2.5.10",
+        "vue-tsc": "^0.3.0"
+    }
+}
