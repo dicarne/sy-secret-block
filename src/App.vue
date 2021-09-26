@@ -53,7 +53,7 @@ onUnmounted(() => {
       height: '100vh'
     }">
       <n-card :style="{
-        minHeight: '121px'
+        minHeight: '100vh',
       }">
         <password-input :unlock="unlock" :lock="lock" v-if="isLock" />
         <secret-content v-if="!isLock" :psd="psd" />

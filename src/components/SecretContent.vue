@@ -65,9 +65,14 @@ const makePassword = () => {
 </script>
 <template>
     <div :style="{
-        position: 'relative'
+        position: 'relative',
+        flex: '1'
     }">
-        <n-input type="textarea" :on-update:value="handleContent" :value="content" />
+        <n-input
+            type="textarea"
+            :on-update:value="handleContent"
+            :value="content"
+        />
         <n-button
             circle
             :style="{
@@ -76,6 +81,7 @@ const makePassword = () => {
                 bottom: '5px'
             }"
             @click="makePassword"
+            v-if="content === ''"
         >密</n-button>
     </div>
 </template>
