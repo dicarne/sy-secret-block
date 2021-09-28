@@ -14,8 +14,8 @@ const handleClick = async () => {
     const id = util.currentNodeId()!
     const r = await api.getBlockAttr(id, "custom-data")
     if (r && r.value != "") {
-        const de = AES.decrypt(r.value, content.value).toString(enc.Utf8)
         try {
+            const de = AES.decrypt(r.value, content.value).toString(enc.Utf8)
             const d = JSON.parse(de)
             if (d.type == "secret-block") {
                 props.unlock(content.value)
@@ -33,11 +33,19 @@ const handleClick = async () => {
 const handleInput = (v: string) => {
     content.value = v
 }
+const handleKeyUp = (p: KeyboardEvent) => {
+    if (p.key === "Enter") {
+        handleClick()
+    }
+}
 
 </script>
 
 <template>
-    <n-grid x-gap="12" cols="1 400:4">
+    <n-grid x-gap="12" cols="1 400:4" :style="{
+        margin: 'auto',
+        paddingLeft: '25px'
+    }">
         <n-gi span="3">
             <n-space
                 :item-style="{
@@ -45,7 +53,14 @@ const handleInput = (v: string) => {
                     width: '100%'
                 }"
             >
-                <n-input :on-update:value="handleInput" placeholder="请输入密钥" round type="password" />
+                <n-input
+                    :on-update:value="handleInput"
+                    placeholder="请输入密钥"
+                    @keyup="handleKeyUp"
+                    passively-activated
+                    round
+                    type="password"
+                />
             </n-space>
         </n-gi>
         <n-gi span="1">

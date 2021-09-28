@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { NInput, NButton } from "naive-ui"
+import { NInput, NButton, NDropdown } from "naive-ui"
 import { api, util } from "siyuan_api_cache_lib"
 import { defineProps, onMounted, ref } from "vue"
 import AES from "crypto-js/aes"
@@ -7,7 +7,8 @@ import { enc } from "crypto-js"
 
 import { debounce, throttle } from "lodash"
 const props = defineProps<{
-    psd: string
+    psd: string,
+    lock: () => void
 }>()
 const content = ref("")
 
@@ -62,16 +63,33 @@ const makePassword = () => {
     }
     handleContent(password)
 }
+const handleSelect = (key: string) => {
+    if (key === "lock-now") {
+        props.lock()
+    }
+}
+const options = ref([
+    {
+        label: '立即锁定',
+        key: 'lock-now',
+    }
+])
 </script>
 <template>
     <div :style="{
         position: 'relative',
+        display: 'flex',
         flex: '1'
     }">
         <n-input
             type="textarea"
             :on-update:value="handleContent"
             :value="content"
+            placeholder="秘密藏在这~"
+            :style="{
+                display: 'flex',
+                flex: '1'
+            }"
         />
         <n-button
             circle
@@ -83,5 +101,20 @@ const makePassword = () => {
             @click="makePassword"
             v-if="content === ''"
         >密</n-button>
+        <n-dropdown
+            trigger="click"
+            @select="handleSelect"
+            :options="options"
+            placement="bottom-end"
+        >
+            <n-button
+                circle
+                :style="{
+                    position: 'absolute',
+                    right: '5px',
+                    top: '5px'
+                }"
+            >···</n-button>
+        </n-dropdown>
     </div>
 </template>

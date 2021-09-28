@@ -50,14 +50,17 @@ onUnmounted(() => {
 <template>
   <n-message-provider>
     <n-layout embedded :content-style="{
-      height: '100vh'
+      height: '100vh',
+      display: 'flex'
     }">
-      <n-card :style="{
-        minHeight: '100vh',
+      <div :style="{
+        display: 'flex',
+        flex: '1',
+        padding: '5px'
       }">
         <password-input :unlock="unlock" :lock="lock" v-if="isLock" />
-        <secret-content v-if="!isLock" :psd="psd" />
-      </n-card>
+        <secret-content v-if="!isLock" :psd="psd" :lock="lock" />
+      </div>
     </n-layout>
   </n-message-provider>
 </template>
