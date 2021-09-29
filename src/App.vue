@@ -3,12 +3,11 @@ import { NLayout, NCard, NMessageProvider } from "naive-ui"
 import { onUnmounted, ref } from "vue"
 import PasswordInput from "./components/PasswordInput.vue"
 import SecretContent from "./components/SecretContent.vue"
-
-const isLock = ref(true)
+import ResetPassword from "./components/ResetPassword.vue"
 
 const psd = ref("")
 const unlockPure = (password: string) => {
-  isLock.value = false
+  _router.value = 'secret-content'
   psd.value = password
 }
 const unlock = (password: string) => {
@@ -18,7 +17,7 @@ const unlock = (password: string) => {
 }
 
 const lock = () => {
-  isLock.value = true
+  _router.value = 'password-input'
   psd.value = ""
   window.sessionStorage.removeItem("sy-secret-password")
   window.sessionStorage.removeItem("sy-secret-password-time")
@@ -32,7 +31,7 @@ const checkPasswordTimer = setInterval(() => {
     const delta = new Date().getTime() - time.getTime()
     if (delta > 1000 * 60 * 10) {
       lock()
-    } else if (isLock.value) {
+    } else if (isRouter('password-input')) {
       unlockPure(password)
     }
   } else {
@@ -44,6 +43,18 @@ const checkPasswordTimer = setInterval(() => {
 onUnmounted(() => {
   clearInterval(checkPasswordTimer)
 })
+
+const _router = ref("password-input")
+const isRouter = (r: string) => {
+  return _router.value === r
+}
+
+const _content = ref("")
+const changePasswordPage = (content: string) => {
+  _router.value = 'change-password'
+  _content.value = content
+}
+
 
 </script>
 
@@ -58,8 +69,14 @@ onUnmounted(() => {
         flex: '1',
         padding: '5px'
       }">
-        <password-input :unlock="unlock" :lock="lock" v-if="isLock" />
-        <secret-content v-if="!isLock" :psd="psd" :lock="lock" />
+        <password-input :unlock="unlock" :lock="lock" v-if="isRouter('password-input')" />
+        <secret-content
+          v-if="isRouter('secret-content')"
+          :psd="psd"
+          :lock="lock"
+          :change-password="changePasswordPage"
+        />
+        <reset-password v-if="isRouter('change-password')" :unlock="unlock" :psd="psd" :content="_content"/>
       </div>
     </n-layout>
   </n-message-provider>

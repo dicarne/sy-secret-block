@@ -8,7 +8,8 @@ import { enc } from "crypto-js"
 import { debounce, throttle } from "lodash"
 const props = defineProps<{
     psd: string,
-    lock: () => void
+    lock: () => void,
+    changePassword: (content: string) => void
 }>()
 const content = ref("")
 
@@ -66,12 +67,17 @@ const makePassword = () => {
 const handleSelect = (key: string) => {
     if (key === "lock-now") {
         props.lock()
+    } else if (key === 'change-password') {
+        props.changePassword(content.value)
     }
 }
 const options = ref([
     {
         label: '立即锁定',
         key: 'lock-now',
+    }, {
+        label: '修改密码',
+        key: 'change-password'
     }
 ])
 </script>
