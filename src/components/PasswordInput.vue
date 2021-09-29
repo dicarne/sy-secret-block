@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NButton, NInput, NGi, NGrid, NSpace, useMessage } from "naive-ui"
 import { api, util } from "siyuan_api_cache_lib"
-import { ref, defineProps } from "vue"
+import { ref, defineProps, onMounted } from "vue"
 import AES from "crypto-js/aes"
 import { enc } from "crypto-js"
 const message = useMessage()
@@ -38,14 +38,26 @@ const handleKeyUp = (p: KeyboardEvent) => {
         handleClick()
     }
 }
+const isFirstToSetPassword = ref(false)
+onMounted(async () => {
+    const id = util.currentNodeId()!
+    const r = await api.getBlockAttr(id, "custom-data")
+    if (!(r && r.value != "")) {
+        isFirstToSetPassword.value = true
+    }
+})
 
 </script>
 
 <template>
-    <n-grid x-gap="12" cols="1 400:4" :style="{
-        margin: 'auto',
-        paddingLeft: '25px'
-    }">
+    <n-grid
+        x-gap="12"
+        cols="1 400:4"
+        :style="{
+            margin: 'auto',
+            paddingLeft: '25px'
+        }"
+    >
         <n-gi span="3">
             <n-space
                 :item-style="{
@@ -55,7 +67,7 @@ const handleKeyUp = (p: KeyboardEvent) => {
             >
                 <n-input
                     :on-update:value="handleInput"
-                    placeholder="请输入密钥"
+                    :placeholder="isFirstToSetPassword ? '请设置初始密钥' : '请输入密钥'"
                     @keyup="handleKeyUp"
                     passively-activated
                     round
