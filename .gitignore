@@ -3,6 +3,7 @@ node_modules
 dist
 dist-ssr
 *.local
+assets
 
 sy-secret-block
 sy-secret-block.zip
