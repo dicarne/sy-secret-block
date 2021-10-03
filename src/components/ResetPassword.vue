@@ -3,6 +3,7 @@ import { AES } from 'crypto-js'
 import { NButton, NInput, NGrid, NGi, NSpace, useMessage } from 'naive-ui'
 import { api, util } from 'siyuan_api_cache_lib'
 import { ref } from 'vue'
+import { saveData } from '../lib/decrypt'
 const props = defineProps<{
     unlock: (password: string) => void,
     psd: string,
@@ -10,27 +11,14 @@ const props = defineProps<{
 }>()
 const message = useMessage()
 const newpassword = ref("")
-const saveData = async () => {
-    const id = util.currentNodeId()!
-    const data = {
-        type: "secret-block",
-        content: props.content
-    }
-    const saveData = AES.encrypt(JSON.stringify(data), newpassword.value).toString()
-    const resp = await api.setBlockAttrs({
-        id: id,
-        attrs: {
-            "custom-data": saveData
-        }
-    })
-}
+
 
 const applyNew = async () => {
     if (newpassword.value === "") {
         message.error("密码不能为空！")
         return
     }
-    await saveData()
+    await saveData(props.content, newpassword.value)
     props.unlock(newpassword.value)
 }
 const cancel = () => {

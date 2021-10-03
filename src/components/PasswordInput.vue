@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { chain } from "lodash"
 import { NButton, NInput, NGi, NGrid, NSpace, useMessage } from "naive-ui"
 import { api, util } from "siyuan_api_cache_lib"
 import { ref, defineProps, onMounted } from "vue"
-import AES from "crypto-js/aes"
-import { enc } from "crypto-js"
+import { GetAndDecryptData, saveData } from "../lib/decrypt"
 const message = useMessage()
 const content = ref("")
 const props = defineProps<{
@@ -11,21 +11,17 @@ const props = defineProps<{
     lock: () => void
 }>()
 const handleClick = async () => {
-    const id = util.currentNodeId()!
-    const r = await api.getBlockAttr(id, "custom-data")
-    if (r && r.value != "") {
-        try {
-            const de = AES.decrypt(r.value, content.value).toString(enc.Utf8)
-            const d = JSON.parse(de)
-            if (d.type == "secret-block") {
-                props.unlock(content.value)
+    const decr = await GetAndDecryptData(content.value)
+    if (!decr.success) {
+        if (decr.isFirst) {
+            if (content.value === "") {
+                message.error("密码不能为空！")
             } else {
-                message.error("密码错误！")
+                await saveData("", content.value)
+                props.unlock(content.value)
             }
-        } catch (error) {
+        } else
             message.error("密码错误！")
-        }
-
     } else {
         props.unlock(content.value)
     }
