@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import { NInput, NButton, NDropdown } from "naive-ui"
-import { api, util } from "siyuan_api_cache_lib"
 import { defineProps, onMounted, ref } from "vue"
-import AES from "crypto-js/aes"
-import { enc } from "crypto-js"
 
 import { debounce, throttle } from "lodash"
+import { GetAndDecryptData, saveData } from "../lib/decrypt"
 const props = defineProps<{
     psd: string,
     lock: () => void,
@@ -13,21 +11,7 @@ const props = defineProps<{
 }>()
 const content = ref("")
 
-const saveData = async () => {
-    const id = util.currentNodeId()!
-    const data = {
-        type: "secret-block",
-        content: content.value
-    }
-    const saveData = AES.encrypt(JSON.stringify(data), props.psd).toString()
-    const resp = await api.setBlockAttrs({
-        id: id,
-        attrs: {
-            "custom-data": saveData
-        }
-    })
-}
-const saveData_1000 = debounce(saveData, 200)
+const saveData_1000 = debounce(() => saveData(content.value, props.psd), 200)
 const refreashLock = throttle(() => window.sessionStorage.setItem("sy-secret-password-time", new Date().toUTCString()), 1000)
 
 const handleContent = (str: string) => {
@@ -36,19 +20,11 @@ const handleContent = (str: string) => {
     saveData_1000()
 }
 const init = async () => {
-    const id = util.currentNodeId()!
-    const r = await api.getBlockAttr(id, "custom-data")
-
-    if (r && r.value != "") {
-        const de = AES.decrypt(r.value, props.psd).toString(enc.Utf8)
-        try {
-            const d = JSON.parse(de)
-            if (d.type == "secret-block") {
-                content.value = d.content
-            } else {
-            }
-        } catch (error) {
-        }
+    const decry = await GetAndDecryptData(props.psd)
+    if (decry.success) {
+        content.value = decry.content!
+    } else {
+        props.lock()
     }
 }
 onMounted(() => init())
@@ -64,8 +40,9 @@ const makePassword = () => {
     }
     handleContent(password)
 }
-const handleSelect = (key: string) => {
+const handleSelect = async (key: string) => {
     if (key === "lock-now") {
+        await saveData(content.value, props.psd)
         props.lock()
     } else if (key === 'change-password') {
         props.changePassword(content.value)
