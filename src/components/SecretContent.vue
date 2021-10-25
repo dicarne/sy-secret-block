@@ -13,11 +13,21 @@ const content = ref("")
 
 const saveData_1000 = debounce(() => saveData(content.value, props.psd), 200)
 const refreashLock = throttle(() => window.sessionStorage.setItem("sy-secret-password-time", new Date().toUTCString()), 1000)
-
+const inputRef = ref<any>(null)
+const showScroll = ref(false)
+const refreashScroll = () => {
+    const textarea = inputRef.value.$refs.textareaElRef
+    if(textarea.scrollHeight > textarea.clientHeight) {
+        showScroll.value = true
+    }else{
+        showScroll.value = false
+    }
+}
 const handleContent = (str: string) => {
     content.value = str
     refreashLock()
     saveData_1000()
+    refreashScroll()
 }
 const init = async () => {
     const decry = await GetAndDecryptData(props.psd)
@@ -26,6 +36,7 @@ const init = async () => {
     } else {
         props.lock()
     }
+    refreashScroll()
 }
 onMounted(() => init())
 
@@ -57,6 +68,7 @@ const options = ref([
         key: 'change-password'
     }
 ])
+
 </script>
 <template>
     <div :style="{
@@ -65,13 +77,15 @@ const options = ref([
         flex: '1'
     }">
         <n-input
+            ref="inputRef"
             type="textarea"
             :on-update:value="handleContent"
             :value="content"
             placeholder="秘密藏在这~"
             :style="{
                 display: 'flex',
-                flex: '1'
+                flex: '1',
+                '--padding-right': '0px'
             }"
         />
         <n-button
@@ -94,9 +108,11 @@ const options = ref([
                 circle
                 :style="{
                     position: 'absolute',
-                    right: '5px',
-                    top: '5px'
+                    right: showScroll ? '20px' : '5px',
+                    top: '5px',
+                    backgroundColor: 'white'
                 }"
+                size="small"
             >···</n-button>
         </n-dropdown>
     </div>

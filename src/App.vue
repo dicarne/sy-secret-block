@@ -101,4 +101,7 @@ const changePasswordPage = (content: string) => {
 </template>
 
 <style>
+body {
+  overflow-x: hidden;
+}
 </style>
