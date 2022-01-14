@@ -18,3 +18,6 @@ fs.copyFile('./preview.png', './dist/preview.png', (err) => {
     if (err) throw err;
     console.log('source.txt was copied to destination.txt');
 });
+fs.copyFile('./README.md', './dist/README.md', (err) => {
+    if (err) throw err;
+});
