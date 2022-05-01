@@ -4,13 +4,13 @@ import { onUnmounted, ref } from "vue"
 import PasswordInput from "./components/PasswordInput.vue"
 import SecretContent from "./components/SecretContent.vue"
 import ResetPassword from "./components/ResetPassword.vue"
-import { GetAndDecryptData } from "./lib/decrypt"
+import { ContentType, GetAndDecryptData } from "./lib/decrypt"
 
 const message = useMessage()
 
 const psd = ref("")
-const unlockPure = async (password: string) => {
-  if (password === wrong_password_cache.value) return
+const unlockPure = async (password: string, tips?: boolean) => {
+  //if (password === wrong_password_cache.value) return
   const r = await GetAndDecryptData(password)
   if (r.success) {
     _router.value = 'secret-content'
@@ -18,14 +18,15 @@ const unlockPure = async (password: string) => {
     wrong_password_cache.value = ""
   } else {
     if (!r.isFirst) {
-      message.error("密码错误")
+      if (tips != false)
+        message.error("密码错误")
       wrong_password_cache.value = password
     }
 
   }
 }
-const unlock = (password: string) => {
-  unlockPure(password)
+const unlock = async (password: string, tips?: boolean) => {
+  await unlockPure(password, tips)
   window.sessionStorage.setItem("sy-secret-password", password)
   window.sessionStorage.setItem("sy-secret-password-time", new Date().toUTCString())
 }
@@ -65,9 +66,11 @@ const isRouter = (r: string) => {
 }
 
 const _content = ref("")
-const changePasswordPage = (content: string) => {
+const _content_type = ref<ContentType>("text")
+const changePasswordPage = (content: string, content_type: ContentType) => {
   _router.value = 'change-password'
   _content.value = content
+  _content_type.value = content_type
 }
 
 
@@ -84,18 +87,9 @@ const changePasswordPage = (content: string) => {
       padding: '5px'
     }">
       <password-input :unlock="unlock" :lock="lock" v-if="isRouter('password-input')" />
-      <secret-content
-        v-if="isRouter('secret-content')"
-        :psd="psd"
-        :lock="lock"
-        :change-password="changePasswordPage"
-      />
-      <reset-password
-        v-if="isRouter('change-password')"
-        :unlock="unlock"
-        :psd="psd"
-        :content="_content"
-      />
+      <secret-content v-if="isRouter('secret-content')" :psd="psd" :lock="lock" :change-password="changePasswordPage" />
+      <reset-password v-if="isRouter('change-password')" :unlock="unlock" :psd="psd" :content="_content"
+        :type="_content_type" />
     </div>
   </n-layout>
 </template>

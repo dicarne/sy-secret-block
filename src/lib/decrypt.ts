@@ -1,10 +1,13 @@
 import { AES, enc } from "crypto-js"
 import { api, util } from "siyuan_api_cache_lib"
 
+export type ContentType = 'text' | 'sheet'
+
 interface IDecryptDataResult {
     success: boolean
     content?: string
     isFirst?: boolean
+    type?: ContentType
 }
 export async function GetAndDecryptData(password: string): Promise<IDecryptDataResult> {
     const id = util.currentNodeId()!
@@ -16,7 +19,8 @@ export async function GetAndDecryptData(password: string): Promise<IDecryptDataR
             if (d.type == "secret-block") {
                 return {
                     success: true,
-                    content: d.content
+                    content: d.content,
+                    type: d.content_type ?? 'text'
                 }
             } else {
                 return {
@@ -37,11 +41,12 @@ export async function GetAndDecryptData(password: string): Promise<IDecryptDataR
     }
 }
 
-export const saveData = async (content: string, password: string) => {
+export const saveData = async (content: string, password: string, content_type: ContentType) => {
     const id = util.currentNodeId()!
     const data = {
         type: "secret-block",
-        content: content
+        content: content,
+        content_type: content_type
     }
     const saveData = AES.encrypt(JSON.stringify(data), password).toString()
     const resp = await api.setBlockAttrs({
@@ -50,4 +55,16 @@ export const saveData = async (content: string, password: string) => {
             "custom-data": saveData
         }
     })
+}
+
+export interface SheetData {
+    head: string[]
+    body: string[][]
+}
+
+export const defaultSheetData = (): SheetData => {
+    return {
+        head: ["用户名", "密码"],
+        body: [["", ""], ["", ""], ["", ""]]
+    }
 }
