@@ -72,18 +72,46 @@ const handleSelect = async (key: string) => {
         props.lock()
     } else if (key === 'change-password') {
         props.changePassword(content.value, content_type.value)
+    } else if (key === 'add-row') {
+        const len = sheet.value.head.length
+        sheet.value.body.push(new Array(len).fill(""))
+    } else if (key === 'add-col') {
+        sheet.value.head.push("")
+        sheet.value.body.forEach(l => l.push(""))
+    } else if (key === 'del-row') {
+        sheet.value.body.splice(sheet.value.body.length - 1, 1)
+    } else if (key === 'del-col') {
+        sheet.value.head.splice(sheet.value.head.length - 1, 1)
+        sheet.value.body.forEach(l => l.splice(l.length - 1, 1))
     }
 }
-const options = ref([
-    {
-        label: '立即锁定',
-        key: 'lock-now',
-    }, {
-        label: '修改密码',
-        key: 'change-password'
+const options = () => {
+    let a = [
+        {
+            label: '立即锁定',
+            key: 'lock-now',
+        }, {
+            label: '修改密码',
+            key: 'change-password'
+        }
+    ]
+    if (content_type.value === "sheet") {
+        a = [...a, {
+            label: "增加一行",
+            key: "add-row"
+        }, {
+            label: "增加一列",
+            key: "add-col"
+        }, {
+            label: "删除一行",
+            key: "del-row"
+        }, {
+            label: "删除一列",
+            key: "del-col"
+        }]
     }
-])
-
+    return a
+}
 const handleHeadUpdate = (index: number) => {
     return (v: string) => {
         sheet.value.head[index] = v
@@ -128,7 +156,7 @@ const handleBodyUpdate = (lindex: number, index: number) => {
         </n-table>
         <n-button circle :style="{ position: 'absolute', right: '5px', bottom: '5px' }" @click="makePassword"
             v-if="content === ''">密</n-button>
-        <n-dropdown trigger="click" @select="handleSelect" :options="options" placement="bottom-end">
+        <n-dropdown trigger="click" @select="handleSelect" :options="options()" placement="bottom-end">
             <n-button circle :style="{
                 position: 'absolute',
                 right: showScroll ? '20px' : '5px',
