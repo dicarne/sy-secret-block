@@ -40,7 +40,7 @@ const lock = () => {
 
 const wrong_password_cache = ref("")
 const checkPasswordTimer = setInterval(() => {
-  const batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "false")
+  const batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
 
   const password = window.sessionStorage.getItem("sy-secret-password")
   const old_time = window.sessionStorage.getItem("sy-secret-password-time")

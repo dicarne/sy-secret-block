@@ -1,14 +1,17 @@
 <script lang="ts" setup>
 import { NInput, NButton, NDropdown, NTable } from "naive-ui"
-import { defineProps, onMounted, reactive, ref } from "vue"
+import { computed, defineProps, onMounted, reactive, ref } from "vue"
 
 import { debounce, throttle } from "lodash"
 import { GetAndDecryptData, saveData, ContentType, SheetData, defaultSheetData } from "../lib/decrypt"
+import { newcompute } from "../lib/newcompute";
 const props = defineProps<{
     psd: string,
     lock: () => void,
     changePassword: (content: string, type: ContentType) => void
 }>()
+
+
 const content = ref("")
 const content_type = ref<ContentType>('text')
 const saveData_1000 = debounce(() => saveData(content.value, props.psd, content_type.value), 200)
@@ -35,7 +38,9 @@ const handleSheet = () => {
     saveData_1000()
 }
 const sheet = ref<SheetData>(defaultSheetData())
+const batch_psd = ref(false)
 const init = async () => {
+    batch_psd.value = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
     const decry = await GetAndDecryptData(props.psd)
     if (decry.success) {
         content.value = decry.content!
@@ -83,9 +88,18 @@ const handleSelect = async (key: string) => {
     } else if (key === 'del-col') {
         sheet.value.head.splice(sheet.value.head.length - 1, 1)
         sheet.value.body.forEach(l => l.splice(l.length - 1, 1))
+    } else if (key === "disable-batch") {
+        window.localStorage.setItem("sy-secret-batch-secret", "false")
+        batch_psd.value = false
+    } else if (key === "enable-batch") {
+        window.localStorage.setItem("sy-secret-batch-secret", "true")
+        batch_psd.value = true
     }
 }
-const options = () => {
+
+const options = newcompute(() => {
+    
+
     let a = [
         {
             label: '立即锁定',
@@ -110,8 +124,20 @@ const options = () => {
             key: "del-col"
         }]
     }
+    const enable_batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
+    if (enable_batch_psd) {
+        a.push({
+            label: "关闭批量解锁",
+            key: "disable-batch"
+        })
+    } else {
+        a.push({
+            label: "开启批量解锁",
+            key: "enable-batch"
+        })
+    }
     return a
-}
+})
 const handleHeadUpdate = (index: number) => {
     return (v: string) => {
         sheet.value.head[index] = v
@@ -156,7 +182,7 @@ const handleBodyUpdate = (lindex: number, index: number) => {
         </n-table>
         <n-button circle :style="{ position: 'absolute', right: '5px', bottom: '5px' }" @click="makePassword"
             v-if="content === ''">密</n-button>
-        <n-dropdown trigger="click" @select="handleSelect" :options="options()" placement="bottom-end">
+        <n-dropdown trigger="click" @select="handleSelect" :options="options" placement="bottom-end">
             <n-button circle :style="{
                 position: 'absolute',
                 right: showScroll ? '20px' : '5px',
