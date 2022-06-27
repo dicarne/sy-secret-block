@@ -11,10 +11,16 @@ interface IDecryptDataResult {
 }
 export async function GetAndDecryptData(password: string): Promise<IDecryptDataResult> {
     const id = util.currentNodeId()!
-    const r = await api.getBlockAttr(id, "custom-data")
-    if (r && r.value != "") {
+    const rr = await fetch("/api/attr/getBlockAttrs", {
+        method: "post",
+        body: JSON.stringify({
+            id: id
+        })
+    })
+    const r = await rr.json()
+    if (r && r.data && r.data["custom-data"]) {
         try {
-            const de = AES.decrypt(r.value, password).toString(enc.Utf8)
+            const de = AES.decrypt(r.data["custom-data"], password).toString(enc.Utf8)
             const d = JSON.parse(de)
             if (d.type == "secret-block") {
                 return {
@@ -49,12 +55,26 @@ export const saveData = async (content: string, password: string, content_type: 
         content_type: content_type
     }
     const saveData = AES.encrypt(JSON.stringify(data), password).toString()
-    const resp = await api.setBlockAttrs({
-        id: id,
-        attrs: {
-            "custom-data": saveData
-        }
+
+    const resp = await fetch("/api/attr/setBlockAttrs", {
+        method: "post", body: JSON.stringify({
+            id: id,
+            attrs: {
+                "custom-data": saveData
+            }
+        })
     })
+    const rj = await resp.json()
+    if (!rj || rj.code != 0) {
+        console.log("save data error", rj)
+    }
+    const rr = await fetch("/api/attr/getBlockAttrs", {
+        method: "post",
+        body: JSON.stringify({
+            id: id
+        })
+    })
+    const r = await rr.json()
 }
 
 export interface SheetData {

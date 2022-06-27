@@ -20,9 +20,7 @@ const applyNew = async () => {
     }
     buttonDisable.value = true
     await saveData(props.content, newpassword.value, props.type)
-    interval.value = setInterval(() => {
-        props.unlock(newpassword.value, false)
-    }, 500)
+    props.unlock(newpassword.value, false)
 }
 
 onUnmounted(() => {

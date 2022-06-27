@@ -10,7 +10,7 @@ const message = useMessage()
 
 const psd = ref("")
 const unlockPure = async (password: string, tips?: boolean) => {
-  //if (password === wrong_password_cache.value) return
+  if (password === wrong_password_cache.value) return
   const r = await GetAndDecryptData(password)
   if (r.success) {
     _router.value = 'secret-content'
@@ -22,9 +22,9 @@ const unlockPure = async (password: string, tips?: boolean) => {
         message.error("密码错误")
       wrong_password_cache.value = password
     }
-
   }
 }
+
 const unlock = async (password: string, tips?: boolean) => {
   await unlockPure(password, tips)
   window.sessionStorage.setItem("sy-secret-password", password)
@@ -40,6 +40,8 @@ const lock = () => {
 
 const wrong_password_cache = ref("")
 const checkPasswordTimer = setInterval(() => {
+  const batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "false")
+
   const password = window.sessionStorage.getItem("sy-secret-password")
   const old_time = window.sessionStorage.getItem("sy-secret-password-time")
   if (old_time != null && old_time != "" && password != "" && password != null) {
@@ -48,6 +50,9 @@ const checkPasswordTimer = setInterval(() => {
     if (delta > 1000 * 60 * 10) {
       lock()
     } else if (isRouter('password-input')) {
+      if (!batch_psd) {
+        return
+      }
       unlockPure(password)
     }
   } else {
