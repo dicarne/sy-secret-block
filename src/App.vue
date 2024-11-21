@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { NLayout, NCard, NMessageProvider, useMessage } from "naive-ui"
-import { onUnmounted, ref } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
 import PasswordInput from "./components/PasswordInput.vue"
 import SecretContent from "./components/SecretContent.vue"
 import ResetPassword from "./components/ResetPassword.vue"
 import { ContentType, GetAndDecryptData } from "./lib/decrypt"
+import { useI18n } from "vue-i18n"
 
 const message = useMessage()
+const { t } = useI18n()
 
 const psd = ref("")
 const unlockPure = async (password: string, tips?: boolean) => {
@@ -19,7 +21,7 @@ const unlockPure = async (password: string, tips?: boolean) => {
   } else {
     if (!r.isFirst) {
       if (tips != false)
-        message.error("密码错误")
+        message.error(t("password_wrong"))
       wrong_password_cache.value = password
     }
   }

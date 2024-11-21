@@ -82,9 +82,9 @@ export interface SheetData {
     body: string[][]
 }
 
-export const defaultSheetData = (): SheetData => {
+export const defaultSheetData = (t: (s: string) => string): SheetData => {
     return {
-        head: ["用户名", "密码"],
+        head: [t("table_sample_column"), t("table_sample_column_2")],
         body: [["", ""], ["", ""], ["", ""]]
     }
 }

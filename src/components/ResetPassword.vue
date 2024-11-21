@@ -2,6 +2,7 @@
 import { NButton, NInput, NGrid, NGi, NSpace, useMessage } from 'naive-ui'
 import { onUnmounted, ref } from 'vue'
 import { ContentType, saveData } from '../lib/decrypt'
+import { useI18n } from 'vue-i18n';
 const props = defineProps<{
     unlock: (password: string, tips?: boolean) => void,
     psd: string,
@@ -9,13 +10,14 @@ const props = defineProps<{
     type: ContentType
 }>()
 const message = useMessage()
+const { t } = useI18n()
 const newpassword = ref("")
 const buttonDisable = ref(false)
 
 const interval = ref<null | any>(null)
 const applyNew = async () => {
     if (newpassword.value === "") {
-        message.error("密码不能为空！")
+        message.error(t("password_empty"))
         return
     }
     buttonDisable.value = true
@@ -48,7 +50,7 @@ const handleKeyUp = (p: KeyboardEvent) => {
                 marginLeft: '10px',
                 marginRight: '10px'
             }">
-                <n-input :value="newpassword" :on-update:value="handlePassword" placeholder="请输入新密码"
+                <n-input :value="newpassword" :on-update:value="handlePassword" :placeholder="t('enter_new_key')"
                     @keyup="handleKeyUp" />
             </div>
         </n-gi>
@@ -57,14 +59,14 @@ const handleKeyUp = (p: KeyboardEvent) => {
                 marginTop: '10px',
                 marginLeft: '20px',
                 marginRight: '20px'
-            }">注意：修改密码只会修改当前块的密码，不会影响其他块！</div>
+            }">{{ $t('new_key_disclaimer_note') }}</div>
         </n-gi>
         <n-gi span="2">
             <n-space justify="space-around" :style="{
                 marginTop: '10px'
             }">
-                <n-button :disabled="buttonDisable" @click="applyNew" ghost type="primary">修改</n-button>
-                <n-button :disabled="buttonDisable" @click="cancel" ghost type="error">取消</n-button>
+                <n-button :disabled="buttonDisable" @click="applyNew" ghost type="primary">{{ $t('change') }}</n-button>
+                <n-button :disabled="buttonDisable" @click="cancel" ghost type="error">{{ $t('cancel') }}</n-button>
             </n-space>
         </n-gi>
     </n-grid>
