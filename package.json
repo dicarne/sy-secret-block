@@ -1,6 +1,6 @@
 {
     "name": "sy-secret-block",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "author": "dicarne",
     "type": "module",
     "repository": {
@@ -10,10 +10,11 @@
         "make-link": "node --no-warnings ./scripts/make_dev_link.js",
         "dev": "NODE_ENV=development vite build",
         "dev-watch": "NODE_ENV=development vite build --watch",
-        "build": "vue-tsc --noEmit && vite build && node ./widget.json.js",
+        "build": "vue-tsc --noEmit && vite build && node ./widget.json.cjs",
         "serve": "vite preview"
     },
     "dependencies": {
+        "@intlify/devtools-types": "^10.0.4",
         "crypto-js": "^4.1.1",
         "lodash": "^4.17.21",
         "siyuan_api_cache_lib": "^1.0.7",

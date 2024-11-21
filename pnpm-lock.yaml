@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@intlify/devtools-types':
+        specifier: ^10.0.4
+        version: 10.0.4
       crypto-js:
         specifier: ^4.1.1
         version: 4.1.1
@@ -96,6 +99,10 @@ packages:
 
   '@intlify/core-base@10.0.4':
     resolution: {integrity: sha512-GG428DkrrWCMhxRMRQZjuS7zmSUzarYcaHJqG9VB8dXAxw4iQDoKVQ7ChJRB6ZtsCsX3Jse1PEUlHrJiyQrOTg==}
+    engines: {node: '>= 16'}
+
+  '@intlify/devtools-types@10.0.4':
+    resolution: {integrity: sha512-5Xt0d0R9FuWJqnTWTw6V6OC2J97LWpEKOOSYhOpvwCvJjmE8Osp8lmKdMGLjn7BsJ8ScYPDmwNXwaWGGgPJKmw==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@10.0.4':
@@ -934,6 +941,11 @@ snapshots:
   '@intlify/core-base@10.0.4':
     dependencies:
       '@intlify/message-compiler': 10.0.4
+      '@intlify/shared': 10.0.4
+
+  '@intlify/devtools-types@10.0.4':
+    dependencies:
+      '@intlify/core-base': 10.0.4
       '@intlify/shared': 10.0.4
 
   '@intlify/message-compiler@10.0.4':
