@@ -2,11 +2,14 @@
     "name": "sy-secret-block",
     "version": "0.3.3",
     "author": "dicarne",
+    "type": "module",
     "repository": {
         "url": "https://github.com/dicarne/sy-secret-block"
     },
     "scripts": {
-        "dev": "vite",
+        "make-link": "node --no-warnings ./scripts/make_dev_link.js",
+        "dev": "NODE_ENV=development vite build",
+        "dev-watch": "NODE_ENV=development vite build --watch",
         "build": "vue-tsc --noEmit && vite build && node ./widget.json.js",
         "serve": "vite preview"
     },
@@ -14,15 +17,19 @@
         "crypto-js": "^4.1.1",
         "lodash": "^4.17.21",
         "siyuan_api_cache_lib": "^1.0.7",
-        "vue": "^3.2.20"
+        "ts-node": "^10.9.2",
+        "vue": "^3.2.20",
+        "vue-i18n": "^10.0.4"
     },
     "devDependencies": {
         "@types/crypto-js": "^4.0.2",
         "@types/lodash": "^4.14.197",
         "@vitejs/plugin-vue": "^1.9.3",
+        "fs": "0.0.1-security",
         "naive-ui": "^2.19.5",
         "typescript": "^4.4.3",
         "vite": "^2.6.5",
+        "vite-plugin-static-copy": "^2.1.0",
         "vue-tsc": "^0.3.0"
     }
 }
