@@ -3,17 +3,20 @@ import { NButton, NInput, NGi, NGrid, NSpace, useMessage, NRadioGroup, NRadioBut
 import { api, util } from "siyuan_api_cache_lib"
 import { ref, defineProps, onMounted } from "vue"
 import { ContentType, GetAndDecryptData, saveData } from "../lib/decrypt"
+import { useI18n } from "vue-i18n"
 const message = useMessage()
+const { t } = useI18n()
+
 const content = ref("")
 const props = defineProps<{
     unlock: (password: string) => void,
     lock: () => void
 }>()
 const content_types = [{
-    label: "文本",
+    label: "content_type_text",
     value: 'text'
 }, {
-    label: "表格",
+    label: "content_type_table",
     value: 'sheet'
 }]
 const content_type = ref<ContentType>('text')
@@ -23,13 +26,13 @@ const handleClick = async () => {
     if (!decr.success) {
         if (decr.isFirst) {
             if (content.value === "") {
-                message.error("密码不能为空！")
+                message.error(t("password_empty"))
             } else {
                 await saveData("", content.value, content_type.value)
                 props.unlock(content.value)
             }
         } else
-            message.error("密码错误！")
+            message.error(t("password_wrong"))
     } else {
         props.unlock(content.value)
     }
@@ -63,7 +66,7 @@ onMounted(async () => {
                 margin: '10px',
                 width: '100%'
             }">
-                <n-input :on-update:value="handleInput" :placeholder="isFirstToSetPassword ? '请设置初始密钥' : '请输入密钥'"
+                <n-input :on-update:value="handleInput" :placeholder="isFirstToSetPassword ? t('set_initial_key') : t('enter_the_key')"
                     @keyup="handleKeyUp" passively-activated round type="password" />
             </n-space>
         </n-gi>
@@ -71,14 +74,14 @@ onMounted(async () => {
             <n-space justify="space-around" :item-style="{
                 margin: '10px'
             }">
-                <n-button @click="handleClick" type="primary" ghost>解锁</n-button>
+                <n-button @click="handleClick" type="primary" ghost>{{ $t('unlock') }}</n-button>
             </n-space>
         </n-gi>
         <n-gi span="3">
             <n-space v-if="isFirstToSetPassword" justify="center">
                 <n-radio-group v-model:value="content_type" name="radiobuttongroup1">
                     <n-radio-button v-for="ty in content_types" :key="ty.value" :value="ty.value" :label="ty.label">
-                        {{ ty.label }}
+                        {{ $t(ty.label) }}
                     </n-radio-button>
                 </n-radio-group>
             </n-space>

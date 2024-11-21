@@ -5,13 +5,14 @@ import { computed, defineProps, onMounted, reactive, ref } from "vue"
 import { debounce, throttle } from "lodash"
 import { GetAndDecryptData, saveData, ContentType, SheetData, defaultSheetData } from "../lib/decrypt"
 import { newcompute } from "../lib/newcompute";
+import { useI18n } from "vue-i18n";
 const props = defineProps<{
     psd: string,
     lock: () => void,
     changePassword: (content: string, type: ContentType) => void
 }>()
 
-
+const {t, locale} = useI18n();
 const content = ref("")
 const content_type = ref<ContentType>('text')
 const saveData_1000 = debounce(() => saveData(content.value, props.psd, content_type.value), 200)
@@ -37,7 +38,7 @@ const handleSheet = () => {
     refreashLock()
     saveData_1000()
 }
-const sheet = ref<SheetData>(defaultSheetData())
+const sheet = ref<SheetData>(defaultSheetData(t))
 const batch_psd = ref(false)
 const init = async () => {
     batch_psd.value = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
@@ -49,7 +50,7 @@ const init = async () => {
             try {
                 sheet.value = JSON.parse(content.value)
             } catch (error) {
-                sheet.value = defaultSheetData()
+                sheet.value = defaultSheetData(t)
             }
 
         }
@@ -98,41 +99,40 @@ const handleSelect = async (key: string) => {
 }
 
 const options = newcompute(() => {
-    
 
     let a = [
         {
-            label: '立即锁定',
+            label: t('lock_now'),
             key: 'lock-now',
         }, {
-            label: '修改密码',
+            label: t('change_password'),
             key: 'change-password'
         }
     ]
     if (content_type.value === "sheet") {
         a = [...a, {
-            label: "增加一行",
+            label: t('add_row'),
             key: "add-row"
         }, {
-            label: "增加一列",
+            label: t('add_col'),
             key: "add-col"
         }, {
-            label: "删除一行",
+            label: t('del_row'),
             key: "del-row"
         }, {
-            label: "删除一列",
+            label: t('del_col'),
             key: "del-col"
         }]
     }
     const enable_batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
     if (enable_batch_psd) {
         a.push({
-            label: "关闭批量解锁",
+            label: t('disable_batch_unlock'),
             key: "disable-batch"
         })
     } else {
         a.push({
-            label: "开启批量解锁",
+            label: t('enable_batch_unlock'),
             key: "enable-batch"
         })
     }
@@ -151,6 +151,11 @@ const handleBodyUpdate = (lindex: number, index: number) => {
         handleSheet()
     }
 }
+
+const isLangChinese = () => {
+    return locale.value === "zh_CN"
+} 
+
 </script>
 <template>
     <div :style="{
@@ -158,12 +163,15 @@ const handleBodyUpdate = (lindex: number, index: number) => {
         display: 'flex',
         flex: '1'
     }">
-        <n-input ref="inputRef" type="textarea" :on-update:value="handleContent" :value="content" placeholder="秘密藏在这~"
-            :style="{
-                display: 'flex',
-                flex: '1',
-                '--padding-right': '0px'
-            }" v-if="content_type === 'text'" />
+        <n-input
+            ref="inputRef"
+            type="textarea"
+            :on-update:value="handleContent"
+            :value="content"
+            :placeholder="t('secret_placeholder')"
+            :style="{ display: 'flex', flex: '1', '--padding-right': '0px' }"
+            v-if="content_type === 'text'"
+        />
         <n-table :bordered="false" :single-line="false" v-if="content_type === 'sheet'">
             <thead>
                 <tr>
@@ -175,20 +183,24 @@ const handleBodyUpdate = (lindex: number, index: number) => {
             <tbody>
                 <tr v-for="(line, lindex) in sheet.body">
                     <td v-for="(it, index) in line">
-                        <n-input :value=it :on-update:value="handleBodyUpdate(lindex, index)" placeholder="... ..." />
+                        <n-input 
+                            :value=it 
+                            :on-update:value="handleBodyUpdate(lindex, index)" 
+                            :placeholder="t('table_cell_placeholder')" 
+                        />
                     </td>
                 </tr>
             </tbody>
         </n-table>
         <n-button circle :style="{ position: 'absolute', right: '5px', bottom: '5px' }" @click="makePassword"
-            v-if="content === ''">密</n-button>
+            v-if="content === ''">{{ t('password_button') }}</n-button>
         <n-dropdown trigger="click" @select="handleSelect" :options="options" placement="bottom-end">
-            <n-button circle :style="{
+            <n-button :circle="isLangChinese()" :style="{
                 position: 'absolute',
                 right: showScroll ? '20px' : '5px',
                 top: '5px',
                 backgroundColor: 'white'
-            }" size="small">···</n-button>
+            }" size="small">{{ t('dropdown_button') }}</n-button>
         </n-dropdown>
     </div>
 </template>
