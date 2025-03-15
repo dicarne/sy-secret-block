@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { NLayout, NCard, NMessageProvider, useMessage } from "naive-ui"
-import { onMounted, onUnmounted, ref } from "vue"
+import { NLayout, useMessage } from "naive-ui"
+import { onUnmounted, ref } from "vue"
 import PasswordInput from "./components/PasswordInput.vue"
 import SecretContent from "./components/SecretContent.vue"
 import ResetPassword from "./components/ResetPassword.vue"
 import { ContentType, GetAndDecryptData } from "./lib/decrypt"
 import { useI18n } from "vue-i18n"
+import { getConfig, saveConfig } from "./lib/config"
 
 const message = useMessage()
 const { t } = useI18n()
@@ -41,8 +42,14 @@ const lock = () => {
 }
 
 const wrong_password_cache = ref("")
-const checkPasswordTimer = setInterval(() => {
-  const batch_psd = JSON.parse(window.localStorage.getItem("sy-secret-batch-secret") ?? "true")
+const checkPasswordTimer = setInterval(async () => {
+  let batch = window.localStorage.getItem("sy-secret-batch-secret")
+  if (batch == null || batch == "") {
+    let conf = await getConfig()
+    batch = conf.isAutoUnlock ? "true" : "false"
+    window.localStorage.setItem("sy-secret-batch-secret", batch)
+  }
+  const batch_psd = JSON.parse(batch)
 
   const password = window.sessionStorage.getItem("sy-secret-password")
   const old_time = window.sessionStorage.getItem("sy-secret-password-time")
@@ -89,10 +96,10 @@ const changePasswordPage = (content: string, content_type: ContentType) => {
     display: 'flex'
   }">
     <div :style="{
-      display: 'flex',
-      flex: '1',
-      padding: '5px'
-    }">
+    display: 'flex',
+    flex: '1',
+    padding: '5px'
+  }">
       <password-input :unlock="unlock" :lock="lock" v-if="isRouter('password-input')" />
       <secret-content v-if="isRouter('secret-content')" :psd="psd" :lock="lock" :change-password="changePasswordPage" />
       <reset-password v-if="isRouter('change-password')" :unlock="unlock" :psd="psd" :content="_content"

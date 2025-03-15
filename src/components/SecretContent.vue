@@ -1,18 +1,20 @@
 <script lang="ts" setup>
 import { NInput, NButton, NDropdown, NTable } from "naive-ui"
-import { computed, defineProps, onMounted, reactive, ref } from "vue"
-
+import { defineProps, onMounted, ref } from "vue"
 import { debounce, throttle } from "lodash"
 import { GetAndDecryptData, saveData, ContentType, SheetData, defaultSheetData } from "../lib/decrypt"
 import { newcompute } from "../lib/newcompute";
 import { useI18n } from "vue-i18n";
+import { getConfig, saveConfig } from "../lib/config"
+
+
 const props = defineProps<{
     psd: string,
     lock: () => void,
     changePassword: (content: string, type: ContentType) => void
 }>()
 
-const {t, locale} = useI18n();
+const { t, locale } = useI18n();
 const content = ref("")
 const content_type = ref<ContentType>('text')
 const saveData_1000 = debounce(() => saveData(content.value, props.psd, content_type.value), 200)
@@ -91,10 +93,16 @@ const handleSelect = async (key: string) => {
         sheet.value.body.forEach(l => l.splice(l.length - 1, 1))
     } else if (key === "disable-batch") {
         window.localStorage.setItem("sy-secret-batch-secret", "false")
+        let conf = await getConfig()
+        conf.isAutoUnlock = false
+        await saveConfig(conf)
         batch_psd.value = false
     } else if (key === "enable-batch") {
         window.localStorage.setItem("sy-secret-batch-secret", "true")
         batch_psd.value = true
+        let conf = await getConfig()
+        conf.isAutoUnlock = true
+        await saveConfig(conf)
     }
 }
 
@@ -154,7 +162,7 @@ const handleBodyUpdate = (lindex: number, index: number) => {
 
 const isLangChinese = () => {
     return locale.value === "zh_CN"
-} 
+}
 
 </script>
 <template>
@@ -163,15 +171,9 @@ const isLangChinese = () => {
         display: 'flex',
         flex: '1'
     }">
-        <n-input
-            ref="inputRef"
-            type="textarea"
-            :on-update:value="handleContent"
-            :value="content"
-            :placeholder="t('secret_placeholder')"
-            :style="{ display: 'flex', flex: '1', '--padding-right': '0px' }"
-            v-if="content_type === 'text'"
-        />
+        <n-input ref="inputRef" type="textarea" :on-update:value="handleContent" :value="content"
+            :placeholder="t('secret_placeholder')" :style="{ display: 'flex', flex: '1', '--padding-right': '0px' }"
+            v-if="content_type === 'text'" />
         <n-table :bordered="false" :single-line="false" v-if="content_type === 'sheet'">
             <thead>
                 <tr>
@@ -183,11 +185,8 @@ const isLangChinese = () => {
             <tbody>
                 <tr v-for="(line, lindex) in sheet.body">
                     <td v-for="(it, index) in line">
-                        <n-input 
-                            :value=it 
-                            :on-update:value="handleBodyUpdate(lindex, index)" 
-                            :placeholder="t('table_cell_placeholder')" 
-                        />
+                        <n-input :value=it :on-update:value="handleBodyUpdate(lindex, index)"
+                            :placeholder="t('table_cell_placeholder')" />
                     </td>
                 </tr>
             </tbody>
@@ -196,11 +195,11 @@ const isLangChinese = () => {
             v-if="content === ''">{{ t('password_button') }}</n-button>
         <n-dropdown trigger="click" @select="handleSelect" :options="options" placement="bottom-end">
             <n-button :circle="isLangChinese()" :style="{
-                position: 'absolute',
-                right: showScroll ? '20px' : '5px',
-                top: '5px',
-                backgroundColor: 'white'
-            }" size="small">{{ t('dropdown_button') }}</n-button>
+        position: 'absolute',
+        right: showScroll ? '20px' : '5px',
+        top: '5px',
+        backgroundColor: 'white'
+    }" size="small">{{ t('dropdown_button') }}</n-button>
         </n-dropdown>
     </div>
 </template>

@@ -42,7 +42,7 @@ const config: UserConfig = {
 }
 
 export default ({ command, mode }) => {
-  if (command === "serve") {
+  if (command === "serve" || command === "dev") {
     config.base = "/widgets/sy-secret-block/";
     return config;
   } else {

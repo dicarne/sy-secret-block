@@ -13,15 +13,15 @@
   "secret_placeholder": "秘密藏在这~",
   "table_cell_placeholder": "... ...",
   "password_button": "密",
-  "dropdown_button": "选项",
+  "dropdown_button": "...",
   "lock_now": "立即锁定",
   "change_password": "修改密码",
   "add_row": "增加一行",
   "add_col": "增加一列",
   "del_row": "删除一行",
   "del_col": "删除一列",
-  "disable_batch_unlock": "关闭批量解锁",
-  "enable_batch_unlock": "开启批量解锁",
+  "disable_batch_unlock": "关闭自动解锁",
+  "enable_batch_unlock": "开启自动解锁",
   "table_sample_column": "用户名",
   "table_sample_column_2": "密码"
 }
